@@ -4,6 +4,7 @@ library(purrr)
 library(stringr)
 library(seqinr)
 library(data.table)
+library(openxlsx)
 
 #################################################### 
 # Функция по преобразованию fasta-файла в дата-фрейм
@@ -49,7 +50,9 @@ ui <- fluidPage(
                 placeholder = "Файл не выбран"),
       # кнопка скачивания
       downloadButton(outputId = "downloadData", 
-                     label = "Скачать (.csv)")
+                     label = "Скачать (.csv)"),
+      downloadButton(outputId = "downloadData_xlsx", 
+                     label = "Скачать (.xlsx)")
     ),
     mainPanel(
       h3("Загруженные данные:"),
@@ -81,7 +84,7 @@ server <- function(input, output) {
     digits = 0
   )
   
-  # сохраняем файл
+  # сохраняем файл csv
   output$downloadData <- downloadHandler(
     filename = "fasta_file.csv",
     # filename = function() {
@@ -89,6 +92,17 @@ server <- function(input, output) {
     # },
     content = function(file) {
       fwrite(df_fasta(), file, quote = F, na = "", row.names = F, sep = ";")
+    }
+  )
+  
+  # сохраняем файл в xlsx
+  output$downloadData_xlsx <- downloadHandler(
+    filename = "fasta_file.xlsx",
+    # filename = function() {
+    #   paste("fasta_file_", date_save(), ".csv", sep = "")
+    # },
+    content = function(file) {
+      write.xlsx(df_fasta(), file, asTable = T)
     }
   )
 }
